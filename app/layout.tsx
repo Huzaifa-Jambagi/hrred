@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/themeProvider"
 import { ClerkProvider } from '@clerk/nextjs'
 import "./globals.css";
 import { shadcn } from '@clerk/themes'
+import Header from "@/components/header";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
+              <Header />
             {children}
           </ThemeProvider>
         </body>

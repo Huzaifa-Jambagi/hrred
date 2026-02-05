@@ -5,6 +5,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import companies from "@/data/companies.json";
 import CompaniesCarousel from "@/components/companies-carousel";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export default function Home() {
   return (
@@ -12,20 +18,19 @@ export default function Home() {
       <div className="grid-background"></div>
 
       <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8">
-        <Header />
         <div className="flex flex-col py-6 gap-8 sm:py-10 sm:gap-12 md:gap-16 lg:py-20 lg:gap-20">
           <section className="text-center px-4">
             <h1 className="flex flex-col items-center justify-center gradient-title text-3xl font-extrabold 
             sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tighter py-4">
               Find Your Dream Job
-              <span className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6"> 
+              <span className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 md:gap-6">
                 and get{" "}
-                <Image 
-                  src="/logo.png" 
+                <Image
+                  src="/logo.png"
                   alt="Logo"
                   width={150}
                   height={150}
-                  className="h-12 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32" 
+                  className="h-12 w-auto sm:h-20 md:h-24 lg:h-28 xl:h-32"
                 />
               </span>
             </h1>
@@ -53,19 +58,32 @@ export default function Home() {
           </div>
 
           <div className="px-4">
-            <Image 
+            <Image
               src="/banner.jpeg"
               alt="Banner"
               width={1200}
               height={400}
-              className="w-full h-auto"/>
+              className="w-full h-auto" />
           </div>
 
-          <div className="px-4">
-            {/* cards */}
-          </div>
-
-          {/* accordian */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>For Employers</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Post jobs and find the perfect candidates</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>For Job Seekers</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Find your dream job with our platform</p>
+              </CardContent>
+            </Card>
+          </section>
         </div>
       </main>
       <div className="p-4 text-center bg-gray-800 sm:p-6 md:p-8 text-sm sm:text-base">
