@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/themeProvider"
 import { ClerkProvider } from '@clerk/nextjs'
@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   description: "Find your dream job with Hirred, the ultimate job portal connecting talent with opportunity.",
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,12 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
-  appearance={{
-    theme: shadcn,
-  }}>
+      appearance={{
+        theme: shadcn,
+      }}>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${poppins.variable} antialiased  `}
+          className={`${poppins.variable} antialiased`}
         >
           <div className="grid-background" />
           <ThemeProvider
@@ -38,7 +43,7 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
-              <Header />
+            <Header />
             {children}
           </ThemeProvider>
         </body>

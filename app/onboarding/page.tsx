@@ -9,8 +9,6 @@ const OnboardingPage = () => {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  
-  console.log(user);
 
   const handleRoleSelection = async (role: string) => {
     if (!user) return;
@@ -24,10 +22,8 @@ const OnboardingPage = () => {
         }
       });
 
-      // Reload user to refresh session claims
       await user.reload();
       
-      // Redirect based on role
       router.push(role === "candidate" ? "/jobs" : "/post-job");
     } catch (err) {
       console.error("Error updating user metadata:", err);
