@@ -46,11 +46,11 @@ const Header = () => {
                 </SignedOut>
                 <SignedIn>
                     {/* add a condition for recruiter */}
-                    <Link href="/post-job">
+                    {/* <Link href="/post-job">
                         <Button variant="destructive" className='rounded-full'>
                             Post a Job
                         </Button>
-                    </Link>
+                    </Link> */}
                     <UserButton>
                         <UserButton.MenuItems>
                             <UserButton.Link
