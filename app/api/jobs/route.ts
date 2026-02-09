@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
         const company_id = searchParams.get("company_id") || undefined;
         const searchQuery = searchParams.get("searchQuery") || undefined;
 
-        let query = supabase.from("jobs").select("*,company:companies(name,logo_url)"); // Fixed typo
+        let query = supabase.from("jobs").select("*,company:companies(name,logo_url),saved:saved_jobs(job_id)"); 
 
         if(location) query = query.eq("location", location);
         if(company_id) query = query.eq("company_id", Number(company_id));
