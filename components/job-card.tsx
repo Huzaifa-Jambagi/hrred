@@ -5,6 +5,7 @@ import { Bookmark, HeartIcon, MapPinIcon, Trash2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import Link from 'next/link';
+import { log } from 'console';
 
 
 interface JobCardProps {
@@ -18,7 +19,6 @@ export const JobCard = ({ job, isMyJob, savedInit, onJobAction = () => { } }: Jo
     const { user } = useUser();
     const [saved, setSaved] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
-
     useEffect(() => {
 
         if (job.saved && job.saved.length > 0) {

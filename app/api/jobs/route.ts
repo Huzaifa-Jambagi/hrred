@@ -12,9 +12,7 @@ export async function GET(request: NextRequest) {
 
         let query = supabase.from("jobs").select("*,company:companies(name,logo_url),saved:saved_jobs(job_id)"); 
 
-        if(location) query = query.eq("location", location);
-        if(company_id) query = query.eq("company_id", Number(company_id));
-        if(searchQuery) query = query.ilike("title", `%${searchQuery}%`);
+        if(searchQuery) query = query.or(`title.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
         
         const { data, error } = await query;
 
