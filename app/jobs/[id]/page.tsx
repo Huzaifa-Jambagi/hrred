@@ -19,7 +19,7 @@ interface Job {
 }
 
 export default function Page({
-  params,
+  params
 }: {
   params: Promise<{ id: string }>;
 }) {

@@ -7,13 +7,14 @@ export async function GET(request: NextRequest) {
         const {searchParams} = new URL(request.url);
 
         const location = searchParams.get("location") || undefined;
-        const company_id = searchParams.get("company_id") || undefined;
         const searchQuery = searchParams.get("searchQuery") || undefined;
 
         let query = supabase.from("jobs").select("*,company:companies(name,logo_url),saved:saved_jobs(job_id)"); 
 
-        if(searchQuery) query = query.or(`title.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
-        
+        if(searchQuery)query=query.ilike("title", `%${searchQuery}%`);
+
+        if(location)query=query.ilike("location", `%${location}%`);       
+         
         const { data, error } = await query;
 
         if (error) throw error;
