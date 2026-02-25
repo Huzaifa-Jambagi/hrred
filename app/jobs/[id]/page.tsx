@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useUser } from "@clerk/nextjs";
+import ApplyJobDrawer from "@/components/ApplyJobDrawer";
 
 interface Job {
   id: number;
@@ -29,7 +30,7 @@ interface Job {
     logo_url: string;
   };
   applicants: {
-    candidate_id: number;
+    candidate_id: string;
   }[];
 }
 
@@ -43,9 +44,15 @@ export default function Page({
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Job | null>(null);
   const [error, setError] = useState<string | null>(null);
+
 console.log(user);
-  useEffect(() => {
-    const fetchData = async () => {
+
+const hasApplied = Boolean(
+  data?.applicants.find(
+    (ap) => ap.candidate_id === user?.id
+  )
+);
+const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -59,7 +66,8 @@ console.log(user);
       } finally {
         setLoading(false);
       }
-    };
+    }; 
+useEffect(() => {
     fetchData();
   }, [id]);
 
@@ -161,6 +169,10 @@ console.log(user);
           <ReactMarkdown>{data.requirements}</ReactMarkdown>
         </div>
       </section>
+      <div className="mb-3 flex justify-center items-center sm:block">
+        {data?.recruiter_id !== user?.id && <ApplyJobDrawer job={data} fetchJob={fetchData} 
+      applied={hasApplied}/>} 
+      </div>
     </div>
   );
 }
