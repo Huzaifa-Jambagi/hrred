@@ -70,7 +70,7 @@ const ApplyJobDrawer = ({ job, fetchJob, applied = false }: jobProp) => {
         formData.append("experience", String(data.experience));
         formData.append("skills", data.skills);
         formData.append("education", data.education);
-        formData.append("resume", data.resume[0]); 
+        formData.append("resume", data.resume[0]);
         formData.append("job_id", String(job.id));
         formData.append("candidate_id", user?.id);
 
@@ -80,7 +80,8 @@ const ApplyJobDrawer = ({ job, fetchJob, applied = false }: jobProp) => {
             body: formData
         })
         if (!response.ok) {
-            console.error("Submission failed");
+            const errorData = await response.json();
+            console.error("Submission failed", errorData); // ← will show the real error
             return;
         }
         fetchJob();
