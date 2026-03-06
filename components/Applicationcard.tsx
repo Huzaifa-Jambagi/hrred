@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Boxes, BriefcaseBusiness, Download, School } from "lucide-react";
 import {
   Card,
@@ -17,32 +17,47 @@ import {
 } from "@/components/ui/select";
 
 interface Application {
-  id: number;
-  job_id: number;
-  candidate_id: string;
-  name: string;
-  experience: string;
-  education: string;
-  skills: string;
-  resume: string;
-  status: string;
-  created_at: string;
-  job?: {
-    title: string;
-    company?: {
-      name: string;
-    };
-  };
+
+      id:string,
+      candidate_id:string,
+      job_id:string,
+      status:string,
+      resume:string,
+      skills:string,
+      experience:number,
+      education:string,
+      name:string,
+      created_at: string
+ 
 }
 
 interface ApplicationCardProps {
   application: Application;
   isCandidate?: boolean;
+  title?: string;
 }
 
-const ApplicationCard = ({ application, isCandidate = false }: ApplicationCardProps) => {
+const ApplicationCard = ({ application, isCandidate = false,title }: ApplicationCardProps) => {
   const [status, setStatus] = useState(application.status);
   const [loading, setLoading] = useState(false);
+
+  const fetchApplication = async () => {
+    try {
+      setLoading(true);
+      const res=await fetch(`/api/applications/${application.id}`);
+      if(!res.ok) throw new Error("Failed to fetch application");
+      const data=await res.json();
+      setStatus(data.status);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(()=>{
+
+  },[])
 
   const handleDownload = () => {
     const link = document.createElement("a");
@@ -69,61 +84,68 @@ const ApplicationCard = ({ application, isCandidate = false }: ApplicationCardPr
   };
 
   return (
-    <Card>
-      {loading && (
-        <div className="w-full h-1 bg-gray-200 rounded overflow-hidden">
-          <div className="h-full bg-teal-400 animate-pulse w-full" />
-        </div>
-      )}
-      <CardHeader>
-        <CardTitle className="flex justify-between font-bold">
-          {isCandidate
-            ? `${application?.job?.title} at ${application?.job?.company?.name}`
-            : application?.name}
-          <Download
-            size={18}
-            className="bg-white text-black rounded-full h-8 w-8 p-1.5 cursor-pointer"
-            onClick={handleDownload}
-          />
-        </CardTitle>
-      </CardHeader>
+    <Card className="w-full flex-1">
+  {loading && (
+    <div className="w-full h-1 bg-gray-200 rounded overflow-hidden">
+      <div className="h-full bg-teal-400 animate-pulse w-full" />
+    </div>
+  )}
+  <CardHeader>
+    <CardTitle className="flex justify-between items-center font-bold gap-2">
+      <span className="text-sm sm:text-base truncate">
+        {isCandidate
+          ? `${title} - ${status}`
+          : application?.name || "Candidate Name Unavailable"}
+      </span>
+      <Download
+        size={18}
+        className="bg-white text-black rounded-full h-8 w-8 p-1.5 cursor-pointer shrink-0"
+        onClick={handleDownload}
+      />
+    </CardTitle>
+  </CardHeader>
 
-      <CardContent className="flex flex-col gap-4 flex-1">
-        <div className="flex flex-col md:flex-row justify-between">
-          <div className="flex gap-2 items-center">
-            <BriefcaseBusiness size={15} /> {application?.experience} years of experience
-          </div>
-          <div className="flex gap-2 items-center">
-            <School size={15} /> {application?.education}
-          </div>
-          <div className="flex gap-2 items-center">
-            <Boxes size={15} /> Skills: {application?.skills}
-          </div>
-        </div>
-        <hr />
-      </CardContent>
+  <CardContent className="flex flex-col gap-4 flex-1">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4">
+      <div className="flex gap-2 items-center text-sm">
+        <BriefcaseBusiness size={15} className="shrink-0" />
+        <span>{application?.experience} years of experience</span>
+      </div>
+      <div className="flex gap-2 items-center text-sm">
+        <School size={15} className="shrink-0" />
+        <span>{application?.education}</span>
+      </div>
+      <div className="flex gap-2 items-center text-sm">
+        <Boxes size={15} className="shrink-0" />
+        <span>Skills: {application?.skills}</span>
+      </div>
+    </div>
+    <hr />
+  </CardContent>
 
-      <CardFooter className="flex justify-between">
-        <span>{new Date(application?.created_at).toLocaleString()}</span>
-        {isCandidate ? (
-          <span className="capitalize font-bold">
-            Status: {status}
-          </span>
-        ) : (
-          <Select onValueChange={handleStatusChange} defaultValue={status}>
-            <SelectTrigger className="w-52">
-              <SelectValue placeholder="Application Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="applied">Applied</SelectItem>
-              <SelectItem value="interviewing">Interviewing</SelectItem>
-              <SelectItem value="hired">Hired</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
-      </CardFooter>
-    </Card>
+  <CardFooter className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <span className="text-xs sm:text-sm text-muted-foreground">
+      {new Date(application?.created_at).toLocaleString()}
+    </span>
+    {isCandidate ? (
+      <span className="capitalize font-bold text-sm">
+        Status: {status}
+      </span>
+    ) : (
+      <Select onValueChange={handleStatusChange} defaultValue={status}>
+        <SelectTrigger className="w-full sm:w-52">
+          <SelectValue placeholder="Application Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="applied">Applied</SelectItem>
+          <SelectItem value="interviewing">Interviewing</SelectItem>
+          <SelectItem value="hired">Hired</SelectItem>
+          <SelectItem value="rejected">Rejected</SelectItem>
+        </SelectContent>
+      </Select>
+    )}
+  </CardFooter>
+</Card>
   );
 };
 

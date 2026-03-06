@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select"
 import { useUser } from "@clerk/nextjs";
 import ApplyJobDrawer from "@/components/ApplyJobDrawer";
+import ApplicationCard from "@/components/ApplicationCard";
 
 interface Job {
   id: number;
@@ -30,7 +31,16 @@ interface Job {
     logo_url: string;
   };
   applicants: {
-    candidate_id: string;
+      id:string,
+      candidate_id:string,
+      job_id:string,
+      status:string,
+      resume:string,
+      skills:string,
+      experience:number,
+      education:string,
+      name:string,
+      created_at: string
   }[];
 }
 
@@ -44,7 +54,9 @@ export default function Page({
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Job | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+  const [page,setPage] = useState(1);
+  let startIndex=page*5-5;
+  let lastIndex=page*5;
 console.log(user);
 
 const hasApplied = Boolean(
@@ -173,6 +185,18 @@ useEffect(() => {
         {data?.recruiter_id !== user?.id && <ApplyJobDrawer job={data} fetchJob={fetchData} 
       applied={hasApplied}/>} 
       </div>
+     
+      {data?.applicants?.length > 0 && data?.recruiter_id === user?.id && (
+        
+        <div className="flex flex-col items-centersm:items-start justify-center gap-2 ">
+           <h2 className="text-2xl sm:text-3xl font-bold mb-3">Applications</h2>
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-2">
+              {data?.applicants.slice(startIndex,lastIndex).map((ap,idx) => (
+            <ApplicationCard key={idx} application={data?.applicants[idx]} title={data?.title} />
+          ))}
+           </div>
+        </div>
+      )}
     </div>
   );
 }

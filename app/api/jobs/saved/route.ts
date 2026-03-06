@@ -29,3 +29,4 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Internal server error while saving job" }, { status: 500 });
     }
 }
+

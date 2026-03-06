@@ -3,18 +3,38 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@clerk/nextjs'
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ca } from 'zod/v4/locales';
 
 const OnboardingPage = () => {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const role = user?.unsafeMetadata?.role;
+
+    const checkUserRole = async () => {
+    try {
+      if (!role) return;
+      if (isLoaded && user) {
+        if (role === "candidate") {
+          router.push("/jobs");
+        } else if (role === "recruiter") {
+          router.push("/");
+        }
+      }
+    } catch (err) {
+      console.error("Error checking user role:", err);
+    }
+  }
+  useEffect(() => {
+    checkUserRole();
+  }, [user])
 
   const handleRoleSelection = async (role: string) => {
     if (!user) return;
-    
+
     setLoading(true);
-    
+
     try {
       await user.update({
         unsafeMetadata: {
@@ -23,7 +43,7 @@ const OnboardingPage = () => {
       });
 
       await user.reload();
-      
+
       router.push(role === "candidate" ? "/jobs" : "/post-job");
     } catch (err) {
       console.error("Error updating user metadata:", err);
@@ -39,23 +59,24 @@ const OnboardingPage = () => {
     );
   }
 
+
   return (
     <div className='flex flex-col items-center justify-center px-4 mt-10'>
       <h2 className='gradient-title text-5xl font-extrabold sm:text-8xl tracking-tighter'>
         I am a...
       </h2>
       <div className="mt-16 gap-4 w-full md:px-40 flex flex-col sm:grid grid-cols-2">
-        <Button 
-          variant="blue" 
-          className='h-20 sm:h-36 text-2xl' 
+        <Button
+          variant="blue"
+          className='h-20 sm:h-36 text-2xl'
           onClick={() => handleRoleSelection("candidate")}
           disabled={loading}
         >
           {loading ? <Loader2 className='animate-spin' /> : 'Job Seeker'}
         </Button>
-        <Button 
-          variant="destructive" 
-          className='h-20 sm:h-36 text-2xl' 
+        <Button
+          variant="destructive"
+          className='h-20 sm:h-36 text-2xl'
           onClick={() => handleRoleSelection("recruiter")}
           disabled={loading}
         >

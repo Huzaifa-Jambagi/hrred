@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react'
+import { useUser } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from './ui/button'
@@ -14,6 +15,10 @@ import { Briefcase, Heart, Menu, X } from 'lucide-react'
 
 const Header = () => {
     const [open, setOpen] = useState<boolean>(false)
+    const { user, isLoaded } = useUser();
+    const role = user?.unsafeMetadata?.role;
+
+
 
     return (
         <nav className="relative py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center z-50">
@@ -66,6 +71,9 @@ const Header = () => {
                         </UserButton.MenuItems>
                     </UserButton>
                 </SignedIn>
+                {role === "recruiter" && (
+                    <Button className='h-5 w-6' variant={'destructive'}>Post a Job</Button>
+                )}
             </div>
 
             {/* Mobile - Show UserButton when signed in, hamburger when signed out */}

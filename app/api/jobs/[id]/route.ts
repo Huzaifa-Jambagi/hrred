@@ -1,26 +1,38 @@
 import { SupabaseServerClient } from "@/lib/supabase/server";
-import { NextRequest, NextResponse } from "next/server";    
-export async function GET(request: NextRequest,{params}:{params:Promise<{id:string}>}) {
+import { NextRequest, NextResponse } from "next/server";
 
-    try { 
-        const supabase = await SupabaseServerClient();
-        const { id } = await params;
-        const { data, error } = await supabase.from("jobs").select("*,company:companies(logo_url),applicants:applications(candidate_id)").eq("id",id).single();
-        if (error) {
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-        console.log(data);
-        return NextResponse.json(data);
-        }
-        catch (error: any) {
-           return NextResponse.json(
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+
+  try {
+    const supabase = await SupabaseServerClient();
+    const { id } = await params;
+    const { data, error } = await supabase.from("jobs").select(`*,company:companies(logo_url),
+      applicants:applications(
+      id,
+      candidate_id,
+      job_id,
+      status,
+      resume,
+      skills,
+      experience,
+      education,
+      name,
+      created_at)`).eq("id", id).single();
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    console.log(data);
+    return NextResponse.json(data);
+  }
+  catch (error: any) {
+    return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 }
     );
-        }
-    }
+  }
+}
 
- export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await SupabaseServerClient();
     const { id } = await params;

@@ -116,27 +116,30 @@ const Page = () => {
           ))}
         </div>
       )}
-      <Pagination className="mt-6">
-  <PaginationContent>
-    <PaginationItem>
-      <PaginationPrevious
-        onClick={() => setPage(p => Math.max(1, p - 1))}
-        className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-      />
-    </PaginationItem>
-
-    <PaginationItem>
-      <PaginationLink isActive>{page}</PaginationLink>
-    </PaginationItem>
-
-    <PaginationItem>
-      <PaginationNext
-        onClick={() => setPage(p => p + 1)}
-        className={lastOpening >= jobs.length ? "pointer-events-none opacity-50" : "cursor-pointer"}
-      />
-    </PaginationItem>
-  </PaginationContent>
-</Pagination>
+      
+      {jobs.length > 0 && (
+        <div className="mt-8 pb-4 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink isActive>{page}</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage(p => p + 1)}
+                  className={lastOpening >= jobs.length ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   )
 }

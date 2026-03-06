@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
                 education,
                 candidate_id,
                 job_id,
-                resume: storageData.path,
+                resume: publicUrl,
                 status: "applied",
             });
 
