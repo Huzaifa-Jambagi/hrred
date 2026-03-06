@@ -1,10 +1,31 @@
 "use client"
 import { useState, useEffect, useCallback } from 'react'
 import { Search, MapPin } from "lucide-react"
-import {JobCard} from '@/components/job-card'
+import { JobCard } from '@/components/job-card'
 import { Spinner } from '@/components/ui/spinner'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationLink,
+} from "@/components/ui/pagination"
+
+interface Job {
+  id: number;
+  title: string;
+  location: string;
+  isOpen: boolean;
+  company: {
+    name: string;
+    logo_url: string;
+  };
+  saved: { job_id: number }[];
+}
 
 function useDebounce(value: string, delay: number) {
+
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay);
@@ -14,10 +35,14 @@ function useDebounce(value: string, delay: number) {
 }
 
 const Page = () => {
-  const [jobs, setJobs] = useState([])
+  const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
+  const [page, setPage] = useState(1)
+
+  let firstOpening: number = page * 10 - 10;
+  let lastOpening: number = page * 10;
 
   const debouncedSearch = useDebounce(searchQuery, 500)
   const debouncedLocation = useDebounce(locationQuery, 500)
@@ -32,7 +57,7 @@ const Page = () => {
       const res = await fetch(`/api/jobs?${params.toString()}`)
       const data = await res.json();
       console.log(data);
-      setJobs(data);
+      setJobs(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch jobs:', error)
     } finally {
@@ -86,11 +111,32 @@ const Page = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {jobs.map((job: any) => (
+          {jobs.slice(firstOpening, lastOpening).map((job: Job) => (
             <JobCard key={job.id} job={job} onJobAction={fetchJobs} />
           ))}
         </div>
       )}
+      <Pagination className="mt-6">
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious
+        onClick={() => setPage(p => Math.max(1, p - 1))}
+        className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+      />
+    </PaginationItem>
+
+    <PaginationItem>
+      <PaginationLink isActive>{page}</PaginationLink>
+    </PaginationItem>
+
+    <PaginationItem>
+      <PaginationNext
+        onClick={() => setPage(p => p + 1)}
+        className={lastOpening >= jobs.length ? "pointer-events-none opacity-50" : "cursor-pointer"}
+      />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
     </div>
   )
 }

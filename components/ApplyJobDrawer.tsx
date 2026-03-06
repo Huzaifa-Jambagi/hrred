@@ -49,6 +49,7 @@ type FormData = z.infer<typeof schema>;
 
 const ApplyJobDrawer = ({ job, fetchJob, applied = false }: jobProp) => {
     const { user } = useUser();
+    const fullName = user?.fullName as string;
     const {
         register,
         formState: { errors },
@@ -73,6 +74,7 @@ const ApplyJobDrawer = ({ job, fetchJob, applied = false }: jobProp) => {
         formData.append("resume", data.resume[0]);
         formData.append("job_id", String(job.id));
         formData.append("candidate_id", user?.id);
+        formData.append("name", fullName);
 
 
         const response = await fetch('/api/applications', {
@@ -81,7 +83,7 @@ const ApplyJobDrawer = ({ job, fetchJob, applied = false }: jobProp) => {
         })
         if (!response.ok) {
             const errorData = await response.json();
-            console.error("Submission failed", errorData); // ← will show the real error
+            console.error("Submission failed", errorData);
             return;
         }
         fetchJob();
