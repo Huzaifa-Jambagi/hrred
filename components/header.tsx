@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import Image from 'next/image'
@@ -15,20 +15,42 @@ import {
 import { Briefcase, Heart, Menu, X } from 'lucide-react'
 
 const Header = () => {
-    const [open, setOpen] = useState<boolean>(false)
+    const [open, setOpen] = useState(false)
     const { user, isLoaded } = useUser();
     const role = user?.unsafeMetadata?.role;
     const router = useRouter();
+    const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (isLoaded && user && !role) {
-            router.push("/onboarding");
+        if (!isLoaded) return
+        if (user && !role) {
+            router.push("/onboarding")
         }
-    }, [isLoaded, user, role]);
+    }, [isLoaded, user, role, router])
+
+    // Close menu on outside click
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+
+        if (open) {
+            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener('touchstart', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [open]);
 
     const handleJobPost = () => {
         router.push("/post-job");
     }
+
     return (
         <nav className="relative py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center z-50">
             <Link href={"/"}>
@@ -41,14 +63,15 @@ const Header = () => {
                 />
             </Link>
 
-            {/* desktop*/}
+            {/* Desktop nav */}
             <div className="hidden sm:flex gap-2 items-center">
                 {role === "recruiter" && (
-                    <Button className='h-5 w-18 p-2 rounded-md py-3' variant={'destructive'} onClick={handleJobPost}>Post a Job</Button>
+                    <Button className='h-5 w-18 p-2 rounded-md py-3' variant={'destructive'} onClick={handleJobPost}>
+                        Post a Job
+                    </Button>
                 )}
                 <SignedOut>
-                    <SignInButton mode="modal"
-                        forceRedirectUrl="/onboarding">
+                    <SignInButton mode="modal" forceRedirectUrl="/onboarding">
                         <span className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent cursor-pointer transition-colors">
                             Login
                         </span>
@@ -60,12 +83,6 @@ const Header = () => {
                     </SignUpButton>
                 </SignedOut>
                 <SignedIn>
-                    {/* add a condition for recruiter */}
-                    {/* <Link href="/post-job">
-                        <Button variant="destructive" className='rounded-full'>
-                            Post a Job
-                        </Button>
-                    </Link> */}
                     <UserButton>
                         <UserButton.MenuItems>
                             <UserButton.Link
@@ -83,14 +100,12 @@ const Header = () => {
                 </SignedIn>
             </div>
 
-            {/* this shows userbutton when signed in, hamburger menu when signed out */}
+            {/* Mobile: UserButton when signed in, hamburger when signed out */}
             <div className="sm:hidden">
                 <SignedIn>
                     <UserButton
                         appearance={{
-                            elements: {
-                                avatarBox: "w-10 h-10"
-                            }
+                            elements: { avatarBox: "w-10 h-10" }
                         }}
                     >
                         <UserButton.MenuItems>
@@ -107,51 +122,50 @@ const Header = () => {
                         </UserButton.MenuItems>
                     </UserButton>
                 </SignedIn>
+
+                {/* 
+                    FIX: Moved hamburger button OUTSIDE of <SignedOut> so it always
+                    renders in the DOM. The menu panel below conditionally shows.
+                    Wrapping the button in SignedOut caused Clerk to remount the
+                    component on auth state changes, breaking the open/close state.
+                */}
                 <SignedOut>
-                    <Button
-                        onClick={() => setOpen(prev => !prev)}
-                        variant="ghost"
-                        size="icon"
-                    >
-                        {!open ? <Menu /> : <X />}
-                    </Button>
+                    <div ref={menuRef} className="relative">
+                        <Button
+                            onClick={() => setOpen(prev => !prev)}
+                            variant="ghost"
+                            size="icon"
+                        >
+                            {open ? <X /> : <Menu />}
+                        </Button>
+
+                        {/* Mobile dropdown menu */}
+                        {open && (
+                            <div className="fixed top-16 right-4 w-56 bg-popover shadow-lg 
+                                flex flex-col gap-3 p-4 border border-border rounded-lg z-50">
+                                <SignInButton mode="modal" forceRedirectUrl="/onboarding">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Login
+                                    </Button>
+                                </SignInButton>
+                                <SignUpButton mode="modal" forceRedirectUrl="/onboarding">
+                                    <Button
+                                        variant="outline"
+                                        className="w-full"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Sign Up
+                                    </Button>
+                                </SignUpButton>
+                            </div>
+                        )}
+                    </div>
                 </SignedOut>
             </div>
-
-            {/* menu for mobile */}
-            <SignedOut>
-                {open && (
-                    <>
-                        
-                        <div
-                            className="fixed inset-0 bg-black/20 sm:hidden z-40"
-                            onClick={() => setOpen(false)}
-                        />
-
-                        {/* Menu panel */}
-                        <div className="absolute top-full right-0 mt-2 w-56 bg-popover shadow-lg 
-                        flex flex-col gap-3 p-4 border border-border rounded-lg sm:hidden z-50">
-                            <SignInButton mode="modal">
-                                <Button
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    Login
-                                </Button>
-                            </SignInButton>
-                            <SignUpButton mode="modal" forceRedirectUrl="/onboarding">                                <Button
-                                variant="outline"
-                                className="w-full"
-                                onClick={() => setOpen(false)}
-                            >
-                                Sign Up
-                            </Button>
-                            </SignUpButton>
-                        </div>
-                    </>
-                )}
-            </SignedOut>
         </nav>
     )
 }
