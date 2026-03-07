@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { JobCard } from "@/components/job-card";
 import { Spinner } from "@/components/ui/spinner";
 import { Briefcase, FileText } from "lucide-react";
-import ApplicationCard  from "@/components/Applicationcard";
+import ApplicationCard  from "@/components/ApplicationCard";
 import {
   Pagination,
   PaginationContent,
