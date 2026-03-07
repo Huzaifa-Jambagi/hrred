@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useRouter } from 'next/navigation';
 import {
   Select,
   SelectContent,
@@ -18,6 +19,7 @@ import {
 import { State } from 'country-state-city';
 import MDEditor from '@uiw/react-md-editor';
 import AddCompanyDrawer from '@/components/AddCompanyDrawer';
+import { routerServerGlobal } from 'next/dist/server/lib/router-utils/router-server-context';
 const schema = z.object({
   title: z.string().min(2, { message: "Title is required" }),
   description: z.string().min(10, { message: "Description is required" }),
@@ -38,6 +40,7 @@ const Page = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const router = useRouter();
 
   const {
     register,
@@ -81,6 +84,7 @@ const Page = () => {
       console.error(err);
     } finally {
       setSubmitting(false);
+      router.push('/my-jobs');
     }
   };
 
@@ -152,8 +156,7 @@ const Page = () => {
           <AddCompanyDrawer fetchCompanies={fetchCompanies} />
         </div>
 
-        {/* Requirements - MDEditor */}
-      <div data-color-mode="auto">
+<div data-color-mode="dark" className="rounded-lg overflow-hidden border border-gray-700">
   <Controller
     name="requirements"
     control={control}
@@ -162,7 +165,8 @@ const Page = () => {
         value={field.value}
         onChange={(val) => field.onChange(val ?? "")}
         preview="edit"
-        height={200}
+        height={300}
+        className="!bg-transparent"
       />
     )}
   />

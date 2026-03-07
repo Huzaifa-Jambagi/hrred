@@ -30,3 +30,21 @@ export async function POST(request: NextRequest) {
     }
 }
 
+export async function GET(request: NextRequest) {
+    try{
+        const supabase = await SupabaseServerClient();
+        const { userId } = await auth();
+        console.log("User ID:", userId);
+        if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        const {data,error}=await supabase.from('saved_jobs').select('*,jobs(*)').eq('user_id', userId);
+        if (error) {
+            console.error("Error fetching saved jobs:", error);
+            return NextResponse.json({ error: "Internal server error while fetching saved jobs" }, { status: 500 });
+        }
+        return NextResponse.json( data , { status: 200 });
+
+    }catch(error) {
+        console.error("Error fetching saved jobs:", error);
+        return NextResponse.json({ error: "Internal server error while fetching saved jobs" }, { status: 500 });
+    }
+}

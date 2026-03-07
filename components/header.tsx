@@ -1,5 +1,6 @@
 "use client";
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,9 +18,17 @@ const Header = () => {
     const [open, setOpen] = useState<boolean>(false)
     const { user, isLoaded } = useUser();
     const role = user?.unsafeMetadata?.role;
+    const router = useRouter();
 
+    useEffect(() => {
+        if (isLoaded && user && !role) {
+            router.push("/onboarding");
+        }
+    }, [isLoaded, user, role]);
 
-
+    const handleJobPost = () => {
+        router.push("/post-job");
+    }
     return (
         <nav className="relative py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center z-50">
             <Link href={"/"}>
@@ -32,8 +41,11 @@ const Header = () => {
                 />
             </Link>
 
-            {/* Desktop menu */}
+            {/* desktop*/}
             <div className="hidden sm:flex gap-2 items-center">
+                {role === "recruiter" && (
+                    <Button className='h-5 w-18 p-2 rounded-md py-3' variant={'destructive'} onClick={handleJobPost}>Post a Job</Button>
+                )}
                 <SignedOut>
                     <SignInButton mode="modal"
                         forceRedirectUrl="/onboarding">
@@ -41,9 +53,7 @@ const Header = () => {
                             Login
                         </span>
                     </SignInButton>
-                    <SignUpButton mode="modal"
-                        forceRedirectUrl="/onboarding">
-
+                    <SignUpButton mode="modal" forceRedirectUrl="/onboarding">
                         <span className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent cursor-pointer transition-colors">
                             Sign Up
                         </span>
@@ -71,12 +81,9 @@ const Header = () => {
                         </UserButton.MenuItems>
                     </UserButton>
                 </SignedIn>
-                {role === "recruiter" && (
-                    <Button className='h-5 w-6' variant={'destructive'}>Post a Job</Button>
-                )}
             </div>
 
-            {/* Mobile - Show UserButton when signed in, hamburger when signed out */}
+            {/* this shows userbutton when signed in, hamburger menu when signed out */}
             <div className="sm:hidden">
                 <SignedIn>
                     <UserButton
@@ -111,11 +118,11 @@ const Header = () => {
                 </SignedOut>
             </div>
 
-            {/* Mobile menu - Only show when signed out */}
+            {/* menu for mobile */}
             <SignedOut>
                 {open && (
                     <>
-                        {/* Backdrop */}
+                        
                         <div
                             className="fixed inset-0 bg-black/20 sm:hidden z-40"
                             onClick={() => setOpen(false)}
@@ -133,14 +140,13 @@ const Header = () => {
                                     Login
                                 </Button>
                             </SignInButton>
-                            <SignUpButton mode="modal">
-                                <Button
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    Sign Up
-                                </Button>
+                            <SignUpButton mode="modal" forceRedirectUrl="/onboarding">                                <Button
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => setOpen(false)}
+                            >
+                                Sign Up
+                            </Button>
                             </SignUpButton>
                         </div>
                     </>

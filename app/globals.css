@@ -38,6 +38,8 @@ z-index: -10;
 html, body {
   scrollbar-width: none;      /* Firefox */
   -ms-overflow-style: none;   /* IE/Edge */
+ 
+
 }
 
 html::-webkit-scrollbar,

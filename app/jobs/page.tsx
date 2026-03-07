@@ -41,8 +41,8 @@ const Page = () => {
   const [locationQuery, setLocationQuery] = useState("");
   const [page, setPage] = useState(1)
 
-  let firstOpening: number = page * 10 - 10;
-  let lastOpening: number = page * 10;
+  let firstOpening: number = page * 12 - 12;
+  let lastOpening: number = page * 12;
 
   const debouncedSearch = useDebounce(searchQuery, 500)
   const debouncedLocation = useDebounce(locationQuery, 500)
@@ -77,7 +77,7 @@ const Page = () => {
 
       <div className="w-full max-w-4xl mx-auto mb-8">
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Job Title Search */}
+
           <div className="flex-1 flex items-center gap-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
             <Search className="h-5 w-5 text-gray-400 flex-shrink-0" />
             <input
@@ -116,7 +116,7 @@ const Page = () => {
           ))}
         </div>
       )}
-      
+
       {jobs.length > 0 && (
         <div className="mt-8 pb-4 flex justify-center">
           <Pagination>
@@ -132,7 +132,7 @@ const Page = () => {
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
-                  onClick={() => setPage(p => p + 1)}
+                  onClick={() => setPage(p => Math.min(p + 1, Math.ceil(jobs.length / 10)))} 
                   className={lastOpening >= jobs.length ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>

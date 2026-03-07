@@ -31,16 +31,16 @@ interface Job {
     logo_url: string;
   };
   applicants: {
-      id:string,
-      candidate_id:string,
-      job_id:string,
-      status:string,
-      resume:string,
-      skills:string,
-      experience:number,
-      education:string,
-      name:string,
-      created_at: string
+    id: string,
+    candidate_id: string,
+    job_id: string,
+    status: string,
+    resume: string,
+    skills: string,
+    experience: number,
+    education: string,
+    name: string,
+    created_at: string
   }[];
 }
 
@@ -54,32 +54,33 @@ export default function Page({
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<Job | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [page,setPage] = useState(1);
-  let startIndex=page*5-5;
-  let lastIndex=page*5;
-console.log(user);
+  const isRecruiter = user?.unsafeMetadata?.role === "recruiter";
+  const [page, setPage] = useState(1);
+  let startIndex = page * 5 - 5;
+  let lastIndex = page * 5;
+  console.log(user);
 
-const hasApplied = Boolean(
-  data?.applicants.find(
-    (ap) => ap.candidate_id === user?.id
-  )
-);
-const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch(`/api/jobs/${id}`);
-        if (!res.ok) throw new Error(`${res.status}`);
-        const job = await res.json();
-        setData(job);
-      } catch (err) {
-        console.error(err);
-        setError("Could not load this job. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    }; 
-useEffect(() => {
+  const hasApplied = Boolean(
+    data?.applicants.find(
+      (ap) => ap.candidate_id === user?.id
+    )
+  );
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`/api/jobs/${id}`);
+      if (!res.ok) throw new Error(`${res.status}`);
+      const job = await res.json();
+      setData(job);
+    } catch (err) {
+      console.error(err);
+      setError("Could not load this job. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchData();
   }, [id]);
 
@@ -181,20 +182,25 @@ useEffect(() => {
           <ReactMarkdown>{data.requirements}</ReactMarkdown>
         </div>
       </section>
-      <div className="mb-3 flex justify-center items-center sm:block">
-        {data?.recruiter_id !== user?.id && <ApplyJobDrawer job={data} fetchJob={fetchData} 
-      applied={hasApplied}/>} 
-      </div>
-     
+      {data?.recruiter_id !== user?.id && (
+        <div className="mb-3 flex justify-center items-center sm:block">
+          {isRecruiter ? (
+            <p className="text-red-500 font-semibold">Recruiters cannot apply for jobs.</p>
+          ) : (
+            <ApplyJobDrawer job={data} fetchJob={fetchData} applied={hasApplied} />
+          )}
+        </div>
+      )}
+
       {data?.applicants?.length > 0 && data?.recruiter_id === user?.id && (
-        
+
         <div className="flex flex-col items-centersm:items-start justify-center gap-2 ">
-           <h2 className="text-2xl sm:text-3xl font-bold mb-3">Applications</h2>
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-2">
-              {data?.applicants.slice(startIndex,lastIndex).map((ap,idx) => (
-            <ApplicationCard key={idx} application={data?.applicants[idx]} title={data?.title} />
-          ))}
-           </div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3">Applications</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-2">
+            {data?.applicants.slice(startIndex, lastIndex).map((ap, idx) => (
+              <ApplicationCard key={idx} application={data?.applicants[idx]} title={data?.title} />
+            ))}
+          </div>
         </div>
       )}
     </div>

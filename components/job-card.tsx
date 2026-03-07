@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Bookmark, HeartIcon, MapPinIcon, Trash2Icon } from 'lucide-react';
@@ -17,10 +17,12 @@ interface JobCardProps {
 
 export const JobCard = ({ job, isMyJob, savedInit, onJobAction = () => { } }: JobCardProps) => {
     const { user } = useUser();
-    const [saved, setSaved] = useState<boolean>(false);
+    const [saved, setSaved] = useState<boolean>(savedInit ?? false);
     const [loading, setLoading] = useState(false);
-    useEffect(() => {
 
+    useEffect(() => {
+        if (savedInit !== undefined) return;
+        
         if (job.saved && job.saved.length > 0) {
             setSaved(true);
         } else {
@@ -36,11 +38,11 @@ export const JobCard = ({ job, isMyJob, savedInit, onJobAction = () => { } }: Jo
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ job_id: job.id, alreadySaved: saved }),
+                body: JSON.stringify({ job_id: job.id, alreadySaved: savedInit ? true : saved }),
             });
             if (response.ok) {
                 setSaved(!saved);
-                onJobAction();
+
             }
         } catch (error) {
             console.error("Error saving job:", error);
@@ -48,17 +50,30 @@ export const JobCard = ({ job, isMyJob, savedInit, onJobAction = () => { } }: Jo
             setLoading(false);
         }
     }
-    return (<Card>
+
+    const handleDelete = async () => {
+    try {
+        const res = await fetch(`/api/jobs/${job.id}`, 
+            { method: "DELETE" }
+        );
+        
+        if (res.ok) onJobAction();
+    } catch (error) {
+        console.error("Error deleting job:", error);
+    }
+}
+
+    return (<Card className='w-full'>
         <CardHeader>
             <CardTitle className='flex justify-between'>{job.title}</CardTitle>
             {isMyJob && (
-                <Trash2Icon
-                    fill="red"
-                    size={18}
-                    className='cursor-pointer text-red-500'
-                />
-            )
-            }
+    <Trash2Icon
+        fill="red"
+        size={18}
+        className='cursor-pointer text-red-500'
+        onClick={handleDelete}
+    />
+)}
         </CardHeader>
         <CardContent className='flex flex-col gap-4 flex-1'>
             <div className="flex justify-between">
@@ -73,7 +88,7 @@ export const JobCard = ({ job, isMyJob, savedInit, onJobAction = () => { } }: Jo
                 </div>
             </div>
             <hr />
-            {job.description.substring(0, job.description.indexOf("."))}
+            {job.description.substring(0, 100)}...
         </CardContent>
         <CardFooter className=''>
             <Link href={`/jobs/${job.id}`} className='flex-1'>
